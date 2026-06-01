@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Rough opinionated mirror of Ocaml's `Seq` module",
+  "main": "./dist/src/lib.js",
+  "types": "./dist/src/lib.d.ts",
   "devDependencies": {
     "@types/node": "^25.9.1",
     "typescript": "^6.0.3"
