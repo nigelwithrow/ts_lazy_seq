@@ -4,6 +4,11 @@ export type list<t> = [
   null | (() => null | list<t>)
 ];
 
+export const of_array = <t>(arr: Array<t>): list<t> =>
+  [...arr, null];
+export const once = <t>(f: () => list<t>): list<t> =>
+  [f];
+
 export const contiguous_part = <t>(l: list<t>): t[] =>
   l.slice(0, l.length - 1) as t[];
 export const linked_part = <t>(l: list<t>): null | (() => null | list<t>) =>
