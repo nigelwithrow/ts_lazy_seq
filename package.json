@@ -1,5 +1,8 @@
 {
+  "name": "lazy_seq",
+  "version": "0.1.0",
   "type": "module",
+  "description": "Rough opinionated mirror of Ocaml's `Seq` module",
   "devDependencies": {
     "@types/node": "^25.9.1",
     "typescript": "^6.0.3"
@@ -7,5 +10,8 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --test dist/tests/*.test.js"
-  }
+  },
+  "keywords": ["list", "seq"],
+  "author": "Nigel Withrow <nigelwithrow78@gmail.com>",
+  "license": "ISC"
 }
