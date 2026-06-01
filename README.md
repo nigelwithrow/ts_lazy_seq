@@ -1,3 +1,3 @@
 # Lazy Seq
 
-Roughly mirrors Ocaml's `Seq`
+Opinionated mirror of Ocaml's `Seq`
