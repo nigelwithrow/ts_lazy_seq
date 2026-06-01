@@ -1,5 +1,5 @@
 
-class node<t, fast=never> {
+export class node<t, fast=never> {
   x: t;
   xs: list<t, fast>;
   constructor(x: t, xs: list<t, fast>) {
