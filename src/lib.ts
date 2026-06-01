@@ -1,59 +1,64 @@
 
-export class node<t, fast=never> {
-  x: t;
-  xs: list<t, fast>;
-  constructor(x: t, xs: list<t, fast>) {
-    this.x = x;
-    this.xs = xs;
-  }
-}
+export type list<t> = [
+  ...t[], // contiguous list of elements before the next pull
+  null | (() => null | list<t>)
+];
 
-export const is_node = <t, fast=never>(value: unknown): value is node<t, fast> => {
-  return value instanceof node;
-}
+export const contiguous_part = <t>(l: list<t>): t[] =>
+  l.slice(0, l.length - 1) as t[];
+export const linked_part = <t>(l: list<t>): null | (() => null | list<t>) =>
+  l[l.length - 1] as unknown as null | (() => null | list<t>);
 
-export type list<t, fast = never> = () => null | fast | node<t, fast>;
+const _length = <t>(l: list<t>): Exclude<number, 0> => l.length;
 
-export const is_list = <t, fast>(value: unknown): value is list<t, fast> => {
-  return typeof value === 'function';
-}
+export const empty: list<never> = [null];
 
-export const empty: list<never, never> =
-  () => null;
+export const return_ = <t>(elem: t): list<t> => [elem, null];
 
-export const return_ = <t>(elem: t): list<t, never> =>
-  () => new node(elem, empty);
+export const ints = (i: number): list<number> =>
+  [i, () => ints(i + 1)];
 
-export const ints = (i: number): list<number, never> =>
-  () => new node(i, ints(i + 1));
-
-export const take = <t, fast>(n: number, list: list<t, fast>): list<t, fast> => {
-  if (n === 0)
+export const take = <t>(n: number, list: list<t>): list<t> => {
+  if (n === 0 || linked_part(list) === null) {
     return empty;
-  return () => {
-    const next = list();
-    if (!is_node<t, fast>(next)) {
-      return next;
-    }
-    else if (next === null) {
-      return null;
-    }
-    return new node(next.x, take(n - 1, next.xs));
+  }
+  // else if (_length(list) - 1 <= n) {
+  //   if (list[list.length - 1] === null) {
+  //     return list;
+  //   }
+  //   return [...contiguous_part(list), null];
+  // }
+  else if (_length(list) > 1) {
+    const took = contiguous_part(list);
+    const link = linked_part(list);
+    return [...took, link && (() => take(n - took.length, [link]))];
+  }
+  else {
+    const link = linked_part(list);
+    if (link === null)
+      return empty;
+
+    const next = link();
+    if (next === null)
+      return empty;
+
+    return take(n, next);
   }
 };
+// export const take_now = <t>
 
-export const to_array = <t>(list: list<t, t[]>) => {
-  const arr: Array<t> = [];
-  while (true) {
-    const next = list();
-    if (is_node<t, unknown>(next)) {
-      arr.push(next.x);
-      list = next.xs;
-    } else if (next === null) {
-      return arr;
-    } else {
-      arr.concat(next);
-      return arr;
+export const to_array = <t>(list: list<t>) => {
+  const arr: Array<t> = [...contiguous_part(list)];
+  let link = linked_part(list);
+  while (link !== null) {
+    const next = link();
+    if (next === null)
+      break;
+
+    for (const elem of contiguous_part(next)) {
+      arr.push(elem);
     }
+    link = linked_part(next);
   }
+  return arr;
 };
