@@ -12,6 +12,26 @@ export const once = <t>(f: () => list<t>): list<t> =>
 export const forever = <t>(f: () => t): list<t> =>
   once(() => [f(), () => forever(f)]);
 
+export const append = <t>(left: list<t>, right: list<t>): list<t> => {
+  const [left_arr, left_link] = [contiguous_part(left), linked_part(left)];
+  if (left_link === null) {
+    const [right_arr, right_link] = [contiguous_part(right), linked_part(right)];
+    return [...left_arr, ...right_arr, right_link];
+  }
+  return [...left_arr, () => {
+    const left_next = left_link();
+    if (left_next === null) {
+      return right;
+    }
+    return append(left_next, right);
+  }]
+};
+
+export const forever_list = <t>(f: () => list<t>): list<t> => {
+  const list = f();
+  return append(list, once(() => forever_list(f)));
+};
+
 export const contiguous_part = <t>(l: list<t>): t[] =>
   l.slice(0, l.length - 1) as t[];
 export const linked_part = <t>(l: list<t>): null | (() => null | list<t>) =>
