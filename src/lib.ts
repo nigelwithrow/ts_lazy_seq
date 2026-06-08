@@ -70,3 +70,17 @@ export const to_array = <t>(list: list<t>) => {
   }
   return arr;
 };
+
+export const map = <t, u>(list: list<t>, f: (t: t) => u): list<u> => {
+  const newlist: (u | ReturnType<typeof linked_part>)[] = contiguous_part(list).map(f);
+  const link = linked_part(list);
+  if (link) {
+    newlist.push(() => {
+      const next = link();
+      return next && map(next, f);
+    });
+  } else {
+    newlist.push(null);
+  }
+  return newlist as list<u>;
+};

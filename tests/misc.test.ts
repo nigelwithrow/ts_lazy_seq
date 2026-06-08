@@ -1,4 +1,4 @@
-import { to_array, take, ints, forever, once } from "../src/lib.js";
+import { to_array, take, ints, forever, once, map } from "../src/lib.js";
 import assert from "node:assert";
 
 assert.deepStrictEqual(
@@ -18,3 +18,10 @@ assert.deepStrictEqual(
   }))),
   [0, 1, 2, 3, 4]
 );
+
+// tests for `map`
+assert.deepStrictEqual(
+  to_array<string>(take(5, map(ints(0), n => (n + 1).toString()))),
+  ["1", "2", "3", "4", "5"]
+);
+
