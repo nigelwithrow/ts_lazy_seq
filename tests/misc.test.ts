@@ -1,4 +1,4 @@
-import { to_array, take, ints, forever, once, map, append, forever_list, of_array } from "../src/lib.js";
+import { to_array, take, ints, forever, once, map, append, forever_list, of_array, fold_while } from "../src/lib.js";
 import assert from "node:assert";
 
 assert.deepStrictEqual(
@@ -41,3 +41,12 @@ assert.deepStrictEqual(
   [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5]
 );
 
+// tests for `fold_while`
+assert.deepStrictEqual(
+  'stop' in fold_while<number>(
+    ints(0),
+    (_, n) => n > 10 ? { stop: null } : { continue: null },
+    null
+  ),
+  true
+);

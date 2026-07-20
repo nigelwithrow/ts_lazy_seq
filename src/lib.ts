@@ -104,3 +104,24 @@ export const map = <t, u>(list: list<t>, f: (t: t) => u): list<u> => {
   }
   return newlist as list<u>;
 };
+
+// similar to rust's `Iterator::try_fold`
+export function fold_while<t, state = null, stop = null>(
+  list: list<t>, f: (prev_state: state, item: t) => { continue: state } | { stop: stop }, init: state,
+): { continue: state } | { stop: stop } {
+  const t = contiguous_part(list);
+
+  for (const item of t) {
+    const next = f(init, item);
+    if ('stop' in next)
+      return next;
+
+    init = next.continue;
+  }
+
+  const link = linked_part(list)?.();
+  if (!link) {
+    return { continue: init };
+  }
+  return fold_while(link, f, init);
+}
